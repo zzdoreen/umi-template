@@ -1,0 +1,10 @@
+{
+    "name": "initial state name [admin user]",
+    "path": [
+        "/home",
+        "/table",
+        "/access",
+        "/access/list"
+    ],
+    "role": 2
+}
