@@ -1,4 +1,5 @@
 import { Modal, ModalFuncProps } from "antd";
+import moment from "moment";
 
 /**
  * 返回格式化的排序 {xxxOrder:: 'descend' | 'ascend'}
@@ -57,8 +58,8 @@ export function getLocalStorage(key: string, defaultValue: any = null) {
  */
 export function getNameByListId(list: { name: string, id: number }[], id: number) {
     return list.find(e => e.id === id)?.name || ''
-  }
-  
+}
+
 /**
  * 
  * @param list 字典表
@@ -77,4 +78,17 @@ export function getvalueEnumMap(list: { label: string, value: number }[], availa
         })
     }
     return m
+}
+
+
+/**
+ * 格式化unix时间值
+ * @param value 
+ */
+export const UnixTimeRender = (value: number, inValidText = '') => {
+    if (!value) return '-'
+    const m = moment.unix(value)
+    if (m.isValid())
+        return m.format('YYYY-MM-DD HH:mm:ss')
+    return inValidText
 }

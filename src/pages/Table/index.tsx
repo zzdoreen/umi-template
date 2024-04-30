@@ -1,14 +1,17 @@
 
-import { ProColumns } from '@ant-design/pro-components';
-import { Button } from 'antd';
-import React, { useCallback, useMemo, } from 'react';
+import { ProColumns, ProFormDependency, ProFormSelect, ProFormTextArea } from '@ant-design/pro-components';
+import { Button, message } from 'antd';
+import React, { useCallback, useMemo, useRef, useState, } from 'react';
 import ProTable, { ProFormModal, useProTable } from '@/components/ProTable';
 import { callProTableData } from '@/services';
-import { getListService } from '@/services/table';
-import { getvalueEnumMap } from '@/utils/tools';
+import { getListService, importService, exportService, addService, editService, delService } from '@/services/table';
+import { ModalConfirm, UnixTimeRender, getvalueEnumMap } from '@/utils/tools';
+import moment from 'moment';
+import ImportProcess from '@/components/Common/ImportComponent';
 
 const TableList: React.FC<unknown> = () => {
-
+  const currentSearchRef = useRef<object>()
+  const [selectedArr, setSelectedArr] = useState<string[]>([]);
 
   const columns = useMemo(() => [
     {
@@ -19,21 +22,16 @@ const TableList: React.FC<unknown> = () => {
     },
     {
       title: '枚举类型',
-      dataIndex: 'type',
-      // valueEnum: getvalueEnumMap(EnumTypeOpts),
-      formItemProps: { rules: [{ required: true, message: '请选择${label}' }] }
-    },
-    {
-      title: '枚举名称',
-      dataIndex: 'name',
-      formItemProps: {
-        rules: [{ required: true }, { max: 15 }]
+      dataIndex: 'market',
+      valueEnum: getvalueEnumMap([{ label: '类型一', value: 1 }, { label: '类型二', value: 2 }]),
+      formItemProps: { rules: [{ required: true }] },
+      fieldProps: {
+        mode: 'multiple',
       }
     },
-
     {
       title: '排序',
-      dataIndex: 'order',
+      dataIndex: 'market',
       search: false,
       valueType: 'digit',
       formItemProps: {
@@ -43,25 +41,35 @@ const TableList: React.FC<unknown> = () => {
       fieldProps: { precision: 0, min: 1 }
     },
     {
-      title: '状态',
-      dataIndex: 'status',
-      valueEnum: getvalueEnumMap([{ label: '正常', value: 1 }, { label: '异常', value: 2 }]),
-      formItemProps: { rules: [{ required: true }] }
+      title: (_, type,) => type === 'form' ? 'emm form' : 'emm table',
+      dataIndex: 'market',
+      search: false,
+      renderFormItem: () => <ProFormDependency name={['market']}>
+        {
+          ({ market }) => {
+            if (market === 1 || (Array.isArray(market) && market[0] === 1))
+              return <ProFormSelect name='type' options={[{ label: '类型一', value: 1 }, { label: '类型二', value: 2 }]} />
+            else return <ProFormTextArea name='note' rules={[{ required: true }, { max: 15 }]} />
+          }
+        }
+      </ProFormDependency>
     },
     {
       title: '更新时间',
       dataIndex: 'updatedAt',
-      // renderText: UnixTimeRender,
+      render: UnixTimeRender,
       hideInForm: true,
       width: 200,
-      search: false
-    },
-    {
-      title: '操作人',
-      dataIndex: 'operator',
-      search: false,
-      width: 150,
-      hideInForm: true
+      valueType: 'dateRange',
+      search: {
+        transform: (v) => {
+          const [start, end] = v
+          return {
+            startAt: moment(start).startOf('day').unix(),
+            endAt: moment(end).endOf('day').unix()
+          }
+        }
+      }
     },
     {
       dataIndex: 'id',
@@ -72,32 +80,31 @@ const TableList: React.FC<unknown> = () => {
     {
       title: '操作',
       valueType: 'option',
-      width: 100,
-      render: (_, item) => <Button type="link" onClick={() => setModal({ visible: true, defaultFormValues: item, title: '编辑' })} >编辑</Button>
+      width: 200,
+      render: (_, item) => <>
+        <Button type="link" onClick={() => setModal({ visible: true, defaultFormValues: item, title: '编辑' })} >编辑</Button>
+        <Button type='link' danger onClick={() => onBatchDelete(item?.deviceId)}>删除</Button>
+      </>
     },
   ] as ProColumns<any>[], []);
 
-  const onSubmit = useCallback((item: any) => {
-    console.log(item)
-    // const isAdd = item.id === undefined;
-    // const service = isAdd
-    //   ? addBasicSettingEnumService({ ...item })
-    //   : editBasicSettingEnumService(item);
-    // return service.then(({ code, message: msg }) => {
-    //   if (code === 0) {
-    //     message.success(`${isAdd ? '新增' : '编辑'}成功`);
-    //     reload(isAdd);
-    //     setModal({ visible: false });
-    //   } else {
-    //     message.error(msg || '操作失败');
-    //   }
-    // });
-  }, []);
-
-  const { proTableProps, proFormModalProps, setModal, reload } = useProTable({
+  const { proTableProps, proFormModalProps, setModal, reload, modal } = useProTable({
     columns,
     request: callProTableData(getListService),
   });
+
+  const onSubmit = useCallback((item: any) => {
+    const service = modal?.isAdd ? addService(item) : editService(item);
+    return service.then(({ code, message: msg }) => {
+      if (code === 0) {
+        message.success(`${modal?.isAdd ? '新增' : '编辑'}成功`);
+        reload(modal?.isAdd);
+        setModal({ visible: false });
+      } else
+        message.error(msg || '操作失败');
+
+    });
+  }, [modal?.isAdd]);
 
   const formColumns: ProColumns<any, "text">[] = useMemo(() => {
     return proFormModalProps.columns.map(e => {
@@ -112,10 +119,48 @@ const TableList: React.FC<unknown> = () => {
     })
   }, [proFormModalProps.columns])
 
-
+  const onBatchDelete = useCallback((id?: string) => {
+    ModalConfirm({
+      content: id ? '确定删除此数据吗?' : `确定删除选中的${selectedArr?.length}项?`,
+      onOk() {
+        delService(id ? [id] : selectedArr).then(({ code, message: msg }) => {
+          if (code === 0) {
+            message.success('删除成功')
+            setSelectedArr([])
+            reload(true)
+          } else message.error(msg || '删除失败')
+        })
+      }
+    })
+  }, [selectedArr])
 
   return <>
-    <ProTable {...proTableProps} searchSpan={4} addText="新建" />
+    <ProTable {...proTableProps} searchSpan={6} addText="新建" rowKey='deviceId'
+      beforeSearchSubmit={v => { currentSearchRef.current = v; return v }}
+      extraActions={[<ImportProcess name='导入' template='' key='upload'
+        service={importService} reload={reload} accept='.xlsx'
+        tootip='仅支持xlsx格式文件，文件小于30MB'
+        validator={f => {
+          if (f.size > 30 * 1024 * 1024 || !/.xlsx$/.test(f.name)) {
+            message.error("仅支持xlsx格式文件，文件小于30MB")
+            return false
+          }
+          return true
+        }}
+      >
+        <Button type="primary">导入数据</Button>
+      </ImportProcess>,
+      <Button key='export' type='primary' onClick={() => exportService({ ...currentSearchRef.current })}>导出</Button>,
+      <Button key='muldel' danger disabled={selectedArr.length <= 0} type='primary' onClick={() => onBatchDelete()}>批量删除</Button>
+      ]}
+      scroll={{ y: 480 }}
+      rowSelection={{
+        onChange: (v) => setSelectedArr(v as string[]),
+        selectedRowKeys: selectedArr,
+        getCheckboxProps: () => ({ disabled: false })
+      }
+      }
+    />
     <ProFormModal {...proFormModalProps} columns={formColumns} onSubmit={onSubmit as any} />
   </>
 };

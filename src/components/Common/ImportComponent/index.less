@@ -1,0 +1,50 @@
+.start {
+  margin-left: 10px;
+  :global {
+    .title {
+      font-weight: 400;
+      font-size: 16px;
+      letter-spacing: 1px;
+    }
+    .template-link {
+      margin: 12px 0;
+    }
+    .ant-upload-list {
+      height: 30px;
+      overflow-y: hidden;
+    }
+    .tooltip {
+      position: absolute;
+      bottom: 35px;
+      left: 110px;
+    }
+  }
+}
+.loading {
+  min-height: 103px;
+  text-align: center;
+  :global {
+    .ant-spin-nested-loading,
+    .ant-spin-container {
+      position: initial;
+    }
+    .ant-spin-nested-loading > div > .ant-spin {
+      .ant-spin-dot {
+        margin: -20px;
+      }
+      .ant-spin-text {
+        padding-top: 30px;
+      }
+    }
+  }
+}
+.end {
+  min-height: 103px;
+  padding-top: 30px;
+  text-align: center;
+  :global {
+    .ant-typography {
+      line-height: 2em;
+    }
+  }
+}

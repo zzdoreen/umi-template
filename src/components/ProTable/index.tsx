@@ -142,7 +142,7 @@ export function ProFormModal<T>(props: ProTableProps<T, AnyForm> & { hasRestFoot
         }).finally(() => setloading(false))}
 
         okButtonProps={{ loading }}
-        
+
         {...hasRestFooter && {
             footer: [
                 <Button key='reset' onClick={() => form.current?.setFieldsValue({ ...modal.defaultFormValues, content: '', result: '' })}>重置</Button>,
@@ -194,5 +194,5 @@ export default function <T>(props: ProTableProps<T, AnyForm> & ExtroProTableProp
             </Row> as unknown as React.ReactNode[],
         }
     } as ProTableProps<T, AnyForm>, restProps)
-    return <ProTable {...newProps}></ProTable>
+    return <ProTable {...newProps} />
 }

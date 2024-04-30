@@ -4,6 +4,7 @@ import { Footer, Header } from "./components/Layout";
 import { message, notification } from "antd";
 import { getLocalStorage, setLocalStorage } from "./utils/tools";
 import { history } from "@umijs/max";
+import queryString from "query-string";
 
 // 运行时配置
 
@@ -113,9 +114,16 @@ export const request: RequestConfig = {
   timeout: 10000,
   errorConfig: {
     errorHandler,
-    errorThrower() {
-    }
+    errorThrower() { }
   },
+  // 解决umi4和umi3在数组序列化方式差异
+  // https://umijs.org/docs/max/request#get-%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0%E5%BA%8F%E5%88%97%E5%8C%96
+  // Umi@3
+  // a: [1,2,3] => a=1&a=2&a=3
+  // Umi@4
+  // a: [1,2,3] => a[]=1&a[]=2&a[]=3
+  paramsSerializer(params) { return queryString.stringify(params) },
+
   requestInterceptors: [requestInterceptor],
   responseInterceptors: [responseInterceptor]
 };

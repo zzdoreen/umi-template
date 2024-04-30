@@ -19,7 +19,9 @@
     "antd": "^5.4.0",
     "echarts": "^5.5.0",
     "momentjs": "^2.0.0",
-    "protobufjs": "^7.2.6"
+    "protobufjs": "^7.2.6",
+    "query-string": "^9.0.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/react": "^18.0.33",
