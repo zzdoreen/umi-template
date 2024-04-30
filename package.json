@@ -1,6 +1,6 @@
 {
   "private": true,
-  "author": "zengzhi <zengzhi@huania.com>",
+  "author": "zzdoreen",
   "scripts": {
     "dev": "max dev",
     "build": "max build",
