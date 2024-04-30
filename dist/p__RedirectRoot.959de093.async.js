@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk=self.webpackChunk||[]).push([[401],{73058:function(s,f,n){n.r(f),n.d(f,{default:function(){return a}});var r=n(80854),e=n(67294),c=n(85893);function a(){var u=(0,e.useRef)(null);return(0,e.useEffect)(function(){var t;u.current&&((t=u.current)===null||t===void 0||t.click())},[]),(0,c.jsx)(r.NavLink,{to:"home",ref:u})}}}]);

@@ -8,6 +8,11 @@
 /.umi
 /.umi-production
 /.umi-test
-/dist
+# /dist
 /.mfsu
 .swc
+
+npm-debug.log*
+yarn-error.log
+yarn.lock
+package-lock.json
