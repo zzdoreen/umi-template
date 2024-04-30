@@ -6,6 +6,7 @@ import proxy from './proxy'
 // 和 umirc.ts 选其一 umirc.ts 优先级高些
 
 export default defineConfig({
+    hash: true,
     antd: {},
     access: {},
     model: {},

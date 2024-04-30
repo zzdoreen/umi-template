@@ -8,6 +8,8 @@ import { getListService, importService, exportService, addService, editService, 
 import { ModalConfirm, UnixTimeRender, getvalueEnumMap } from '@/utils/tools';
 import moment from 'moment';
 import ImportProcess from '@/components/Common/ImportComponent';
+import { ProUploadFile } from '@/components/Common/Upload/ProFormUploadFile';
+import { useControllableValue } from 'ahooks';
 
 const TableList: React.FC<unknown> = () => {
   const currentSearchRef = useRef<object>()
@@ -72,6 +74,16 @@ const TableList: React.FC<unknown> = () => {
       }
     },
     {
+      title: '文件',
+      dataIndex: 'file',
+      search: false,
+      formItemProps: {
+        rules: [{ required: true, message: '请上传图片' }]
+      },
+      renderFormItem: () => <ProUploadFile accept='.png' />,
+      renderText: (_) => <Button type='link' target='_blank' href={_}>{_}</Button>
+    },
+    {
       dataIndex: 'id',
       hideInTable: true,
       search: false,
@@ -82,7 +94,7 @@ const TableList: React.FC<unknown> = () => {
       valueType: 'option',
       width: 200,
       render: (_, item) => <>
-        <Button type="link" onClick={() => setModal({ visible: true, defaultFormValues: item, title: '编辑' })} >编辑</Button>
+        <Button type="link" onClick={() => setModal({ visible: true, defaultFormValues: { ...item, file: 'http://xxx.png' }, title: '编辑' })} >编辑</Button>
         <Button type='link' danger onClick={() => onBatchDelete(item?.deviceId)}>删除</Button>
       </>
     },
@@ -147,19 +159,16 @@ const TableList: React.FC<unknown> = () => {
           }
           return true
         }}
-      >
-        <Button type="primary">导入数据</Button>
-      </ImportProcess>,
+      ><Button type="primary">导入数据</Button></ImportProcess>,
       <Button key='export' type='primary' onClick={() => exportService({ ...currentSearchRef.current })}>导出</Button>,
-      <Button key='muldel' danger disabled={selectedArr.length <= 0} type='primary' onClick={() => onBatchDelete()}>批量删除</Button>
+      <Button key='batchDel' danger disabled={selectedArr.length <= 0} type='primary' onClick={() => onBatchDelete()}>批量删除</Button>
       ]}
       scroll={{ y: 480 }}
       rowSelection={{
         onChange: (v) => setSelectedArr(v as string[]),
         selectedRowKeys: selectedArr,
         getCheckboxProps: () => ({ disabled: false })
-      }
-      }
+      }}
     />
     <ProFormModal {...proFormModalProps} columns={formColumns} onSubmit={onSubmit as any} />
   </>

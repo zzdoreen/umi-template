@@ -8,7 +8,6 @@ import classNames from "classnames";
 import { useEffect, useState } from "react";
 import styles from './index.less';
 
-
 export default function useProForm<T extends object>(props: {
     getService: (vals?: any, cancel?: boolean) => Promise<BaseResponse<T>>
     updateService: (vals: T) => Promise<BaseResponse<any>>,
@@ -17,7 +16,6 @@ export default function useProForm<T extends object>(props: {
 } & ProFormProps) {
 
     const { className, layout = 'horizontal', getService, updateService, manual, onSuccess } = props
-
     const [disabled, setDisabled] = useState(true);
     const [form] = useForm()
     const [update, { toggle }] = useBoolean()

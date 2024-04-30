@@ -1,0 +1,33 @@
+.upload-image {
+  min-height: 112px;
+  :global {
+    .ant-upload-list {
+      width: 112px;
+      height: 112px;
+      overflow: hidden;
+      .ant-upload-animate-inline-appear,
+      .ant-upload-animate-inline-enter,
+      .ant-upload-animate-inline-leave {
+        animation-duration: 0s;
+      }
+    }
+  }
+}
+.upload-file {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  :global {
+    .ant-upload-list {
+      overflow: hidden;
+      .ant-upload-animate-inline-appear,
+      .ant-upload-animate-inline-enter,
+      .ant-upload-animate-inline-leave {
+        animation-duration: 0s;
+      }
+      .ant-upload-list-item {
+        margin-top: 0;
+      }
+    }
+  }
+}

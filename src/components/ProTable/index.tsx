@@ -6,7 +6,7 @@ import { FormInstance } from "antd/lib/form";
 import classNames from "classnames";
 import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import styles from './index.less';
+import styles from './index.less'
 import { merge } from "@ant-design/pro-components";
 
 const indexColumn: ProColumns<any> = {
@@ -59,7 +59,7 @@ export function useProTable<T>(config: { columns: ProColumns<T>[], request?: Pro
 export interface FormModalState {
     isAdd?: boolean
     visible: boolean,
-    defaultFormValues?: {},
+    defaultFormValues?: object,
     title?: string
 }
 export interface AnyForm {
@@ -98,7 +98,7 @@ export function ProFormModal<T>(props: ProTableProps<T, AnyForm> & { hasRestFoot
         if ((isAdd || title === '处理') && refreshTime.flag && visible)
             timer = setInterval(() => form.current?.setFieldsValue({ ...form.current?.getFieldsValue(), [refreshTime?.name]: moment() }), 1000)
         return () => {
-            timer && clearInterval(timer)
+            if (timer) clearInterval(timer)
         }
     }, [modal.visible, modal.isAdd, refreshTime, modal.title])
 
@@ -163,9 +163,7 @@ export function ProFormModal<T>(props: ProTableProps<T, AnyForm> & { hasRestFoot
     </Modal >
 }
 
-export default function <T>(props: ProTableProps<T, AnyForm> & ExtroProTableProps & {
-    setModal?: React.Dispatch<React.SetStateAction<FormModalState>>
-}) {
+export default function <T>(props: ProTableProps<T, AnyForm> & ExtroProTableProps & { setModal?: React.Dispatch<React.SetStateAction<FormModalState>> }) {
     const {
         searchSpan = 6, extraActions, addText, addButtonProps, hideSearchButton,
         className, actionRef, setModal, ...restProps
@@ -186,13 +184,13 @@ export default function <T>(props: ProTableProps<T, AnyForm> & ExtroProTableProp
                 }
                 <Col >
                     {addText && <Button type="primary" icon={<PlusOutlined />}
-                        onClick={() => setModal({ visible: true, title: addText })}
+                        onClick={() => setModal!({ visible: true, title: addText })}
                         {...addButtonProps}
                     >{addText}</Button>}
-                    {props.extraActions}
+                    {extraActions}
                 </Col>
             </Row> as unknown as React.ReactNode[],
         }
     } as ProTableProps<T, AnyForm>, restProps)
-    return <ProTable {...newProps} />
+    return <ProTable {...newProps as any} />
 }

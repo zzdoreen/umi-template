@@ -44,7 +44,7 @@ export default function ImportProcess(props: ImportProcessProps) {
     }, [])
     // 导入完成后，卸载此组件时重置列表，外层Modal需配置destroyOnClose属性
     const onCancel = useCallback(() => {
-        step === Step.END && reload?.(true)
+        if (step === Step.END) reload?.(true)
         setstep(Step.START)
         setFileList([])
         fileRef.current = undefined
@@ -186,7 +186,7 @@ export function UploadProcess(props: UploadProcessProps) {
 
     // 导入完成后，卸载此组件时重置列表，外层Modal需配置destroyOnClose属性
     const onCancel = useCallback(() => {
-        step === Step.END && reload?.()
+        if (step === Step.END) reload?.()
         setstep(Step.START)
         setFileList([])
         fileRef.current = undefined
