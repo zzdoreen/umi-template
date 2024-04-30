@@ -7,7 +7,7 @@ import proxy from './proxy'
 
 export default defineConfig({
     hash: true,
-    publicPath: './',
+    publicPath: process.env.NODE_ENV === 'production' ? './' : '/',
     antd: {},
     access: {},
     model: {},
@@ -16,11 +16,10 @@ export default defineConfig({
     layout: {
         title: '@umijs/max',
     },
-    devServer: { port: '6666' },
     routes,
     proxy: proxy['dev'],
     npmClient: 'yarn',
-    chainWebpack(config, { env }) {
+    chainWebpack: (config, { env }) => {
         if (env === 'production')
             config.merge({
                 optimization: {

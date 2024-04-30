@@ -13,7 +13,7 @@ import queryString from "query-string";
 export async function getInitialState(): Promise<{ name: string, role: Role }> {
   setLocalStorage('token', '-')
 
-  const init = await fetch(`/${['admin', 'user'][Math.round(Math.random())]}.json`).then(res => res.json()).then(a => a)
+  const init = await fetch(`/role/${['admin', 'user'][Math.round(Math.random())]}.json`).then(res => res.json()).then(a => a)
   // console.log(init)
   return init
 }
