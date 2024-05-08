@@ -9,7 +9,6 @@ import { ModalConfirm, UnixTimeRender, getvalueEnumMap } from '@/utils/tools';
 import moment from 'moment';
 import ImportProcess from '@/components/Common/ImportComponent';
 import { ProUploadFile } from '@/components/Common/Upload/ProFormUploadFile';
-import { useControllableValue } from 'ahooks';
 
 const TableList: React.FC<unknown> = () => {
   const currentSearchRef = useRef<object>()

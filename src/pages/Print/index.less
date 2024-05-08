@@ -1,0 +1,33 @@
+.wrapper {
+    height: 100%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+
+    .container {
+        width: 600px;
+        height: 100%;
+        border: 1px solid;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        margin-right: 20px;
+        overflow-y: auto;
+
+        .map {
+            width: 500px;
+            height: 300px;
+            flex-shrink: 0;
+        }
+
+        .content {
+            font-size: 20px;
+            line-height: 50px;
+            word-spacing: 20px;
+        }
+    }
+
+    .btn {
+        padding: 0 50px;
+    }
+}
