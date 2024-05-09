@@ -10,6 +10,7 @@ import * as echarts from 'echarts/core';
 // 引入 Canvas 渲染器，注意引入 CanvasRenderer 或者 SVGRenderer 是必须的一步
 import { CanvasRenderer } from 'echarts/renderers';
 import { RefObject, useEffect } from 'react';
+import { ECBasicOption } from "echarts/types/dist/shared"
 
 // 注册必须的组件
 echarts.use([
@@ -25,5 +26,22 @@ export function useEchartsAutoResize(ref: RefObject<HTMLElement>) {
         if (!ref.current) return
         echarts.getInstanceByDom(ref.current!)?.resize()
     }, [size]);
+}
+
+
+export function useEchartsInit(ref: React.RefObject<HTMLElement>, opts: ECBasicOption) {
+    useEffect(() => {
+        if (!ref.current) return
+        let chart = echarts.init(ref.current!)
+        chart.setOption(opts)
+
+        function resizeFn() { chart?.resize() }
+        window.addEventListener('resize', resizeFn)
+
+        return () => {
+            chart.dispose()
+            window.removeEventListener('resize', resizeFn)
+        }
+    }, [])
 }
 export default echarts

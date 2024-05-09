@@ -1,7 +1,7 @@
 
-import { ProColumns, ProFormDependency, ProFormSelect, ProFormTextArea } from '@ant-design/pro-components';
-import { Button, message } from 'antd';
-import React, { useCallback, useMemo, useRef, useState, } from 'react';
+import { ProColumns, ProField, ProFormDependency, ProFormField, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
+import { Button, Table, message } from 'antd';
+import React, { useCallback, useEffect, useMemo, useRef, useState, } from 'react';
 import ProTable, { ProFormModal, useProTable } from '@/components/ProTable';
 import { callProTableData } from '@/services';
 import { getListService, importService, exportService, addService, editService, delService } from '@/services/table';
@@ -9,6 +9,7 @@ import { ModalConfirm, UnixTimeRender, getvalueEnumMap } from '@/utils/tools';
 import moment from 'moment';
 import ImportProcess from '@/components/Common/ImportComponent';
 import { ProUploadFile } from '@/components/Common/Upload/ProFormUploadFile';
+import { TableListFormItem } from './components';
 
 const TableList: React.FC<unknown> = () => {
   const currentSearchRef = useRef<object>()
@@ -83,6 +84,13 @@ const TableList: React.FC<unknown> = () => {
       renderText: (_) => <Button type='link' target='_blank' href={_}>{_}</Button>
     },
     {
+      title: 'table',
+      dataIndex: 'table',
+      search: false,
+      hideInTable: true,
+      renderFormItem: () => <TableListFormItem />
+    },
+    {
       dataIndex: 'id',
       hideInTable: true,
       search: false,
@@ -93,7 +101,7 @@ const TableList: React.FC<unknown> = () => {
       valueType: 'option',
       width: 200,
       render: (_, item) => <>
-        <Button type="link" onClick={() => setModal({ visible: true, defaultFormValues: { ...item, file: 'http://xxx.png' }, title: '编辑' })} >编辑</Button>
+        <Button type="link" onClick={() => setModal({ visible: true, defaultFormValues: { ...item, file: 'http://xxx.png', table: [{ name: '1', sex: 2 }] }, title: '编辑' })} >编辑</Button>
         <Button type='link' danger onClick={() => onBatchDelete(item?.deviceId)}>删除</Button>
       </>
     },

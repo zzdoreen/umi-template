@@ -3,7 +3,7 @@ import './index.less'
 
 export default function Echarts() {
 
-    return <div className="container">
+    return <div className="echarts-container">
         <LineChart />
         <BarChart />
         <PieChart />
