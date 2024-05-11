@@ -1,7 +1,7 @@
 
-import { ProColumns, ProField, ProFormDependency, ProFormField, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
-import { Button, Table, message } from 'antd';
-import React, { useCallback, useEffect, useMemo, useRef, useState, } from 'react';
+import { ProColumns, ProFormDependency, ProFormSelect, ProFormTextArea } from '@ant-design/pro-components';
+import { Button, message } from 'antd';
+import React, { useCallback, useMemo, useRef, useState, } from 'react';
 import ProTable, { ProFormModal, useProTable } from '@/components/ProTable';
 import { callProTableData } from '@/services';
 import { getListService, importService, exportService, addService, editService, delService } from '@/services/table';
@@ -20,7 +20,7 @@ const TableList: React.FC<unknown> = () => {
       title: '名称',
       dataIndex: 'deviceId',
       tip: '名称是唯一的 key',
-      search: false
+      // search: false
     },
     {
       title: '枚举类型',
@@ -34,7 +34,7 @@ const TableList: React.FC<unknown> = () => {
     {
       title: '排序',
       dataIndex: 'market',
-      search: false,
+      // search: false,
       valueType: 'digit',
       formItemProps: {
         rules: [{ required: true },]
@@ -155,6 +155,8 @@ const TableList: React.FC<unknown> = () => {
 
   return <>
     <ProTable {...proTableProps} searchSpan={6} addText="新建" rowKey='deviceId'
+      // 查询项默认展开
+      search={{ defaultCollapsed: false }}
       beforeSearchSubmit={v => { currentSearchRef.current = v; return v }}
       extraActions={[<ImportProcess name='导入' template='' key='upload'
         service={importService} reload={reload} accept='.xlsx'

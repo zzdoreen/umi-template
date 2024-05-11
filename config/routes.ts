@@ -58,7 +58,12 @@ export default [
                 name: '打印',
                 path: '/print',
                 component: './Print'
-            }
+            },
+            {
+                name: '表单',
+                path: '/form',
+                component: './Form'
+            },
         ]
     },
 
