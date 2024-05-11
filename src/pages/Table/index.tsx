@@ -29,6 +29,7 @@ const TableList: React.FC<unknown> = () => {
       formItemProps: { rules: [{ required: true }] },
       fieldProps: {
         mode: 'multiple',
+        maxTagCount: 'responsive'
       }
     },
     {
@@ -37,7 +38,9 @@ const TableList: React.FC<unknown> = () => {
       // search: false,
       valueType: 'digit',
       formItemProps: {
-        rules: [{ required: true },]
+        rules: [{ required: true },],
+        addonAfter: '后缀',
+        addonBefore: '前缀'
       },
       width: 100,
       fieldProps: { precision: 0, min: 1 }
@@ -184,3 +187,94 @@ const TableList: React.FC<unknown> = () => {
 };
 
 export default TableList;
+
+
+    /* 
+    const columns = [
+    {
+        title:'',  // 标签名称
+        dataIndex:'', // 绑定字段
+        ellipsis: true | false,
+        valueEnum: [{label:'',value:''}],
+        valueType:'text' | 'date' // 值类型 ...
+        order: number // 表单中的权重 越大越靠前
+
+        search: true | false | { transfer:(value)=>any }, // 搜索启用/隐藏
+        // transfer 转化值的 key, 一般用于时间区间的转化
+        search:{
+            transform: (v?: [string, string]) => {
+                    if (!v) return {}
+                    const [s, e] = v
+                    return {
+                        startAt: moment(s).startOf('day').unix(),
+                        endAt: moment(e).endOf('day').unix()
+                    }
+                }
+         }
+
+
+        colSize: number, // 表单占用格子数量 colSpan*span
+        hideInSearch: true | false,
+        hideInTable:true | false,
+        hideInForm:true | false,
+        initialValue:any, // 初始值
+
+        // table的render
+        renderText: (text,record,index,action)=>string,
+        render: (text,record,index,action)=>ReactNode|ReactNode[],
+
+        // 表单的输入组件 proFields / antd / 自定义组件
+        renderFormItem: (item, ,form)=>RecatNode,
+        // 表单配置
+        fieldProps: {
+            precision:1 // 精度 ... antd 表单组件相关配置
+        },
+        formItemProps: {  //  Form.Item 相关配置
+            rules:[ 
+                { required:true|false,message:'' },
+                {
+                   message:'',
+                   validator: (record,value){
+                      if(value)return Promise.resolve()
+                      return Promise.reject()
+                   }
+               }
+           ]
+        }
+    },
+    ],
+
+    valueType :
+        password	密码输入框
+        money	金额输入框
+        textarea	文本域
+        date	日期
+        dateTime	日期时间
+        dateWeek	周
+        dateMonth	月
+        dateQuarter	季度输入
+        dateYear	年份输入
+        dateRange	日期区间
+        dateTimeRange	日期时间区间
+        time	时间
+        timeRange	时间区间
+        text	文本框
+        select	下拉框
+        treeSelect	树形下拉框
+        checkbox	多选框
+        rate	星级组件
+        radio	单选框
+        radioButton	按钮单选框
+        progress	进度条
+        percent	百分比组件
+        digit	数字输入框
+        second	秒格式化
+        avatar	头像
+        code	代码框
+        switch	开关
+        fromNow	相对于当前时间
+        image	图片
+        jsonCode	代码框，但是带了 json 格式化
+        color	颜色选择器
+        cascader 级联选择器
+    */

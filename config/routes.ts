@@ -64,6 +64,12 @@ export default [
                 path: '/form',
                 component: './Form'
             },
+            {
+                name: '地图',
+                path: '/map',
+                component: './Map',
+                collapased: true,
+            }
         ]
     },
 
