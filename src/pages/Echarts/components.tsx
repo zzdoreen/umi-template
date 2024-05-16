@@ -274,6 +274,7 @@ export function BarChart() {
                 name: "b",
                 type: "bar",
                 barMinHeight: 2,
+                // data:[[x,y,...]]
                 data: [20, 0,
                     {
                         value: 136,
