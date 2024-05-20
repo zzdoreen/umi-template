@@ -46,9 +46,6 @@ export const MapTools = ({ map, centerAndZoomMap }: { map: BMap.Map, centerAndZo
     const [visible, setVisible] = useState<boolean>(false)
 
     return <div className="tools">
-        <Tooltip placement="left" title="返回默认地图">
-            <div onClick={() => centerAndZoomMap(0)} className="tool reset" >返回</div>
-        </Tooltip>
         <Tooltip placement="left" title="切换地图类型">
             <div className="tool mapType"
                 onClick={() => {
@@ -61,6 +58,9 @@ export const MapTools = ({ map, centerAndZoomMap }: { map: BMap.Map, centerAndZo
                 centerAndZoomMap(0)
                 setVisible(true)
             }}>统计</div>
+        </Tooltip>
+        <Tooltip placement="left" title="返回默认地图">
+            <div onClick={() => centerAndZoomMap(0)} className="tool reset" >返回</div>
         </Tooltip>
         <TotalStatisticModal {...{ visible, setVisible }} />
     </div>
@@ -153,6 +153,10 @@ const TotalStatisticModal = ({ visible, setVisible }: { visible: boolean, setVis
                     type: 'line',
                     smooth: true,
                     seriesLayoutBy: 'row',
+                    label: {
+                        show: true,
+                        position: 'top'
+                    },
                     emphasis: { focus: 'series' }
                 }
             )

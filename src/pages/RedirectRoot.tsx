@@ -10,5 +10,5 @@ export default function RedirectRoot() {
     }, [])
 
     // 根据token和权限 动态重定向路由地址
-    return <NavLink to='home' ref={navRef} />
+    return <NavLink to='travel' ref={navRef} />
 }
