@@ -2,7 +2,7 @@
 import { Outlet } from 'umi'
 
 export default function GlobalWrapper() {
-    return <div style={{ height: 'calc(100vh - 160px)', width: '100%', overflow: 'auto', borderBottom: '1px solid rgba(5, 5, 5, 0.06)' }}>
+    return <div style={{ height: '100%', width: '100%', overflow: 'auto' }}>
         <Outlet />
     </div>
 }

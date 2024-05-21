@@ -32,11 +32,11 @@ export const layout = () => {
     // headerTitleRender: () =><>?</>,
     menuHeaderRender: () => <Header />, // 左侧导航的header
     rightContentRender: () => <>rightContentRender</>,
-    footerRender: () => <Footer />,
+    footerRender: () => null,//<Footer />,
     menuExtraRender: () => <>menuExtraRender</>,
     contentStyle: {
       padding: 0,
-      height: 'calc(100vh - 156px)'
+      height: 'calc(100vh - 56px)'
     },
     breadcrumbProps: {
       separator: ' > ',

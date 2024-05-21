@@ -77,7 +77,7 @@ export default function () {
                 type: 'line',
                 smooth: true,
                 stack: 'Total',
-                label: { show: true, position: 'top' },
+                // label: { show: true, position: 'top' },
                 areaStyle: {},
                 seriesLayoutBy: 'row',
                 emphasis: { focus: 'series' }
@@ -144,6 +144,7 @@ export default function () {
         if (current.clone().unix() <= moment().unix() && data[month]) return <ul style={{ listStyleType: "none" }}>
             <li><Badge status="success" text={`🤑：${data[month]?.income}`} /></li>
             <li><Badge status="error" text={`😈：${data[month].expenditure.total}`} /></li>
+            <li>{data[month]?.income - data[month]?.expenditure?.total}</li>
         </ul>;
         return null
     }
