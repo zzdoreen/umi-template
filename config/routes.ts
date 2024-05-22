@@ -17,6 +17,11 @@ export default [
                 name: '记账',
                 path: '/account',
                 component: './Account'
+            },
+            {
+                name: '计划',
+                path: '/plan',
+                component: './Plan'
             }
         ]
     },

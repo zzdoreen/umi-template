@@ -51,6 +51,7 @@ export default function () {
             axisLabel: { formatter: function (value: string) { return value.split(' ').join('\n\n') } }
         },
         title: {
+            // eslint-disable-next-line no-param-reassign
             text: source[0][1] + '\n\n' + source.reduce((pre, curr) => pre += typeof curr[1] === 'number' ? curr[1] : 0, 0),
             left: 'center',
             top: '18%'
@@ -84,6 +85,7 @@ export default function () {
             })
         }).concat(incomes[0][1] ? [{ // 总额 直接在datasource添加会影响联动效果
             type: 'bar',
+            // @ts-ignore
             name: '收入',
             data: incomes,
             label: { show: true, position: 'top' },
@@ -116,6 +118,8 @@ export default function () {
                 const dimension = xAxisInfo.value + 1;
                 chart.setOption({
                     title: {
+                        // @ts-ignore
+                        // eslint-disable-next-line no-param-reassign
                         text: source[0][dimension] + '\n\n' + source.reduce((pre, curr) => pre += typeof curr[dimension] === 'number' ? curr[dimension] : 0, 0),
                         left: 'center',
                         top: '18%'
@@ -139,6 +143,7 @@ export default function () {
         }
     }, [opts])
 
+    // @ts-ignore
     const cellRender: CalendarProps<Dayjs>['cellRender'] = (current) => {
         const month = current.format('YYYY-M')
         if (current.clone().unix() <= moment().unix() && data[month]) return <ul style={{ listStyleType: "none" }}>
@@ -150,6 +155,7 @@ export default function () {
     }
 
     return <div className="account">
+        {/* @ts-ignore */}
         <Calendar onChange={setDate} mode="year" disabledDate={currentDate => currentDate.clone().unix() > moment().unix()} cellRender={cellRender} />
         <br />
         <br />

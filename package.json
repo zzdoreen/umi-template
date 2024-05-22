@@ -27,6 +27,7 @@
     "print-js": "^1.6.0",
     "protobufjs": "^7.2.6",
     "query-string": "^9.0.0",
+    "react-markdown": "^9.0.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
