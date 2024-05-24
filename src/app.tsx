@@ -12,8 +12,8 @@ import queryString from "query-string";
 // 更多信息见文档：https://umijs.org/docs/api/runtime-config#getinitialstate
 export async function getInitialState(): Promise<{ name: string, role: Role }> {
   setLocalStorage('token', '-')
-
-  const init = await fetch(`/role/${['admin', 'user'][Math.round(Math.random())]}.json`).then(res => res.json()).then(a => a)
+  console.log(process.env.NODE_ENV)
+  const init = await fetch(`./role/${['admin', 'user'][Math.round(Math.random())]}.json`).then(res => res.json()).then(a => a)
   // console.log(init)
   return init
 }
