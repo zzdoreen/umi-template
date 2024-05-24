@@ -23,7 +23,7 @@ export default function Export() {
     }
 
     async function handleExport() {
-        await fetch('/template.docx')
+        await fetch('./template.docx')
             .then(res => res.arrayBuffer())
             .then(response => {
                 const zip = new PizZip(response)

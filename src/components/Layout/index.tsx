@@ -4,9 +4,8 @@ import { useModel } from '@umijs/max';
 
 
 export function Header() {
-    const { initialState: { name } } = useModel('@@initialState')
-
-    return <h3>{name}</h3>
+    const initialState = useModel('@@initialState') || {}
+    return <h3>{initialState?.name}</h3>
 }
 
 export function Footer() {

@@ -70,11 +70,6 @@ export default [
                 component: './Map',
                 collapased: true,
             },
-            {
-                name: '旅行',
-                path: '/travel',
-                component:'./Travel',
-            }
         ]
     },
 
