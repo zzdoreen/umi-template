@@ -6,7 +6,10 @@ import proxy from './proxy'
 // 和 umirc.ts 选其一 umirc.ts 优先级高些
 
 export default defineConfig({
-    hash: true,
+    hash: false,
+    history: {
+        type: 'hash'
+    },
     publicPath: process.env.NODE_ENV === 'production' ? './' : '/',
     antd: {},
     access: {},
@@ -16,6 +19,7 @@ export default defineConfig({
     layout: {
         title: '@umijs/max',
     },
+    esbuildMinifyIIFE: true,
     routes,
     proxy: proxy['dev'],
     npmClient: 'yarn',
