@@ -70,6 +70,11 @@ export default [
                 component: './Map',
                 collapased: true,
             },
+            {
+                name: '截图',
+                path: '/screenshot',
+                component: './ScreenShot',
+            }
         ]
     },
 

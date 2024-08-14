@@ -21,7 +21,7 @@ export default defineConfig({
     proxy: proxy['dev'],
     npmClient: 'yarn',
     headScripts: [
-        '//api.map.baidu.com/api?v=2.0&ak=2Cj12hK8X1jz5STDaOUrGShTmyaw5aUB'
+        '//api.map.baidu.com/api?v=3.0&ak=2Cj12hK8X1jz5STDaOUrGShTmyaw5aUB'
     ],
     chainWebpack: (config, { env }) => {
         if (env === 'production')
