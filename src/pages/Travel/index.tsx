@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Button, Popover } from "antd"
-import { detailInfo, traveled } from './data'
+import { detailInfo, traveled, traveledPoint } from './data'
 import { CloseCircleOutlined } from "@ant-design/icons"
 import { CostStatisticPie, MapTools } from "./components"
 import './index.less'
@@ -86,6 +86,30 @@ export default function () {
                 }
             })
         })
+
+        // 没有边界的地点
+        // 尼泊尔
+        const markers = traveledPoint.map(({ name, lng, lat }) => {
+            const point = new BMap.Point(lng, lat)
+            const marker = new BMap.Marker(point)
+            pointArr = pointArr.concat([point])
+            marker.addEventListener('click', () => {
+                const { x: left, y: top } = map.pointToPixel(point)
+                if (detailInfo[name])
+                    setCurrentArea(areas => {
+                        let data = { ...areas }
+                        data[name] = { left, top, visible: true }
+                        return data
+                    })
+            })
+            return marker
+        })
+
+        markers.map(o => map.addOverlay(o))
+
+        return () => {
+            markers.map(o => map.removeOverlay(o))
+        }
     }, [map])
 
     return <>
@@ -96,6 +120,7 @@ export default function () {
         {
             Object.keys(currentArea).map(area => {
                 const { left, top, visible } = currentArea[area]
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { title, time, name, ...infos } = detailInfo[area]
                 return <Popover
                     title={`${title} (${time})`}
