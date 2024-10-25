@@ -5,16 +5,18 @@ import { data } from "./data";
 import echarts from "@/components/Common/echarts";
 
 export default function () {
+    const [month, setMonth] = useState<number>(1)
     const [date, setDate] = useState<Moment>(moment())
     const dataRef = useRef<HTMLDivElement>(null)
 
-    const { source, expenditures, incomes } = useMemo(() => {
+    const { source, expenditures, incomes, totalSurplus } = useMemo(() => {
         const isCurrentYear = date.get('year') === moment().get('year')
         const endMonth = isCurrentYear ? moment().get('month') + 1 : 12
 
         let source: (string | number)[][] = [['month']],
             expenditures: [string, number][] = [],
-            incomes: [string, number][] = []
+            incomes: [string, number][] = [],
+            totalSurplus = 0
 
         for (let i = 1; i <= endMonth; i++) {
             const dateStr = `${date.get('year')}-${i}`
@@ -24,6 +26,8 @@ export default function () {
             if (index === 0) return
             expenditures.push([month as unknown as string, data[month]?.expenditure.total])
             incomes.push([month as unknown as string, data[month]?.income])
+            const surplus = ((data[month]?.income - data[month]?.expenditure.total).toFixed(1) as unknown as number) - 0
+            totalSurplus += isNaN(surplus) ? 0 : surplus
 
             const types = Object.keys(data[month]?.expenditure || []).splice(1)
 
@@ -35,7 +39,8 @@ export default function () {
                     source[i + 1].push(value)
             }
         })
-        return { source, expenditures, incomes }
+
+        return { source, expenditures, incomes, totalSurplus: totalSurplus.toFixed(1) }
     }, [date])
 
     const opts = useMemo(() => ({
@@ -52,7 +57,7 @@ export default function () {
         },
         title: {
             // eslint-disable-next-line no-param-reassign
-            text: source[0][1] + '\n\n' + source.reduce((pre, curr) => pre += typeof curr[1] === 'number' ? curr[1] : 0, 0),
+            text: source[0][month] + '\n\n' + source.reduce((pre, curr) => pre += typeof curr[month] === 'number' ? curr[month] : 0, 0),
             left: 'center',
             top: '18%'
         },
@@ -66,11 +71,11 @@ export default function () {
                     radius: ['20%', '30%'],
                     center: ['50%', '25%'],
                     emphasis: { focus: 'self' },
-                    label: { formatter: `{b}: {@${source[0][1]}} ({d}%)` },
+                    label: { formatter: `{b}: {@${source[0][month]}} ({d}%)` },
                     encode: {
                         itemName: source[0][0],
-                        value: source[0][1],
-                        tooltip: source[0][1]
+                        value: source[0][month],
+                        tooltip: source[0][month]
                     }
                 })
             }
@@ -106,11 +111,10 @@ export default function () {
                 moveOnMouseMove: true
             }
         ]
-    }), [source, expenditures, incomes])
+    }), [source, expenditures, incomes, month])
 
     useEffect(() => {
         if (!dataRef.current) return
-
         let chart = echarts.init(dataRef.current!)
         chart.on('updateAxisPointer', function (event: any) {
             const xAxisInfo = event.axesInfo[0];
@@ -146,17 +150,31 @@ export default function () {
     // @ts-ignore
     const cellRender: CalendarProps<Dayjs>['cellRender'] = (current) => {
         const month = current.format('YYYY-M')
-        if (current.clone().unix() <= moment().unix() && data[month]) return <ul style={{ listStyleType: "none" }}>
-            <li><Badge status="success" text={`🤑：${data[month]?.income}`} /></li>
-            <li><Badge status="error" text={`😈：${data[month].expenditure.total}`} /></li>
-            <li>{data[month]?.income - data[month]?.expenditure?.total}</li>
-        </ul>;
+        if (current.clone().unix() <= moment().unix() && data[month]) {
+            const num = (data[month]?.income - data[month]?.expenditure?.total).toFixed(1) as unknown as number
+            return <ul style={{ listStyleType: "none" }}>
+                <li><Badge status="success" text={`🤑：${data[month]?.income}`} /></li>
+                <li><Badge status="error" text={`😈：${data[month].expenditure.total}`} /></li>
+                <li style={{ color: num > 0 ? 'green' : 'red' }}>{num}</li>
+            </ul>
+        };
         return null
     }
 
     return <div className="account">
-        {/* @ts-ignore */}
-        <Calendar onChange={setDate} mode="year" disabledDate={currentDate => currentDate.clone().unix() > moment().unix()} cellRender={cellRender} />
+        <br />
+        &nbsp; &nbsp; &nbsp;
+        余额：<span style={{ color: +totalSurplus > 0 ? 'green' : 'red' }}>{totalSurplus}</span>
+        <br />
+        <br />
+        <Calendar
+            mode="year"
+            // @ts-ignore
+            onChange={setDate}
+            cellRender={cellRender}
+            onSelect={v => setMonth(v?.month() + 1)}
+            disabledDate={currentDate => currentDate.clone().unix() > moment().unix()}
+        />
         <br />
         <br />
         <div ref={dataRef} className="statistic" style={{ width: '100%', height: 500 }} />
