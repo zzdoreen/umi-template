@@ -3,20 +3,21 @@ import moment, { Moment } from "moment";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { data } from "./data";
 import echarts from "@/components/Common/echarts";
+import { Space } from "antd";
 
 export default function () {
     const [month, setMonth] = useState<number>(1)
     const [date, setDate] = useState<Moment>(moment())
     const dataRef = useRef<HTMLDivElement>(null)
 
-    const { source, expenditures, incomes, totalSurplus } = useMemo(() => {
+    const { source, expenditures, incomes, totalSurplus, totalIncome, totalExpenditures } = useMemo(() => {
         const isCurrentYear = date.get('year') === moment().get('year')
         const endMonth = isCurrentYear ? moment().get('month') + 1 : 12
 
         let source: (string | number)[][] = [['month']],
             expenditures: [string, number][] = [],
             incomes: [string, number][] = [],
-            totalSurplus = 0
+            totalSurplus = 0, totalIncome = 0, totalExpenditures = 0;
 
         for (let i = 1; i <= endMonth; i++) {
             const dateStr = `${date.get('year')}-${i}`
@@ -28,6 +29,8 @@ export default function () {
             incomes.push([month as unknown as string, data[month]?.income])
             const surplus = ((data[month]?.income - data[month]?.expenditure.total).toFixed(1) as unknown as number) - 0
             totalSurplus += isNaN(surplus) ? 0 : surplus
+            totalIncome += isNaN(data[month]?.income) ? 0 : data[month]?.income
+            totalExpenditures += isNaN(data[month]?.expenditure?.total) ? 0 : data[month]?.expenditure?.total
 
             const types = Object.keys(data[month]?.expenditure || []).splice(1)
 
@@ -40,7 +43,12 @@ export default function () {
             }
         })
 
-        return { source, expenditures, incomes, totalSurplus: totalSurplus.toFixed(1) }
+        return {
+            source, expenditures, incomes,
+            totalIncome: totalIncome.toFixed(1),
+            totalSurplus: totalSurplus.toFixed(1),
+            totalExpenditures: totalExpenditures.toFixed(1),
+        }
     }, [date])
 
     const opts = useMemo(() => ({
@@ -102,7 +110,22 @@ export default function () {
             name: '花费',
             label: { show: true, position: 'top' },
             data: expenditures,
-        }] : []),
+        },
+        {
+            type: 'pie',
+            id: 'statistic',
+            name: '-',
+            radius: '30%',
+            center: ['30%', '25%'],
+            data: source.slice(1).map(v => {
+                // @ts-ignore
+                const [name, value] = [v[0], v.slice(1).reduce((pre, curr) => pre + (isNaN(curr) ? 0 : curr), 0)]
+                return { value: (value as number).toFixed(1), name }
+            }),
+            emphasis: { focus: 'self' },
+            label: { formatter: `{b}: {@${source[0][month]}} ({d}%)` },
+        }
+        ] : []),
         dataZoom: [
             {
                 type: "inside", // inside | slider
@@ -163,8 +186,12 @@ export default function () {
 
     return <div className="account">
         <br />
-        &nbsp; &nbsp; &nbsp;
-        余额：<span style={{ color: +totalSurplus > 0 ? 'green' : 'red' }}>{totalSurplus}</span>
+        <Space size='large'>
+            &nbsp; &nbsp; &nbsp;
+            <span>+ {totalIncome}</span>
+            <span>- {totalExpenditures}</span>
+            <span style={{ color: +totalSurplus > 0 ? 'green' : 'red' }}>{totalSurplus}</span>
+        </Space>
         <br />
         <br />
         <Calendar
@@ -172,8 +199,8 @@ export default function () {
             // @ts-ignore
             onChange={setDate}
             cellRender={cellRender}
-            onSelect={v => setMonth(v?.month() + 1)}
-            disabledDate={currentDate => currentDate.clone().unix() > moment().unix()}
+            onSelect={(v: Moment) => setMonth(v?.month() + 1)}
+            disabledDate={(currentDate: Moment) => currentDate.clone().unix() > moment().unix()}
         />
         <br />
         <br />
