@@ -46,7 +46,7 @@ export default function () {
         let pointArr: any[] = [];
 
         // 尼泊尔
-        fetch('/geojson/nepal-states.geojson')
+        fetch('./geojson/nepal-states.geojson')
             .then(res => res?.json())
             .then(({ features }) => {
                 if (Array.isArray(features) && features?.length) {
