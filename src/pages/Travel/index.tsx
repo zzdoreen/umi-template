@@ -44,6 +44,69 @@ export default function () {
         if (!map) return
         const bdary = new BMap.Boundary()
         let pointArr: any[] = [];
+
+        // 尼泊尔
+        fetch('/geojson/nepal-states.geojson')
+            .then(res => res?.json())
+            .then(({ features }) => {
+                if (Array.isArray(features) && features?.length) {
+                    let polygonArr: any[] = [];
+                    features.forEach(({ geometry: { coordinates = [] } = {} }) => {
+                        const points = coordinates?.map(([lng, lat]: [number, number]) => new BMap.Point(lng, lat))
+                        const ply = new BMap.Polygon(points, {
+                            strokeWeight: 2,
+                            strokeStyle: "dashed",
+                            strokeColor: "#0000ff",
+                            strokeOpacity: 0.6,
+                            fillColor: 'rgba(200,100,55,0.7)'
+                        })
+                        polygonArr = polygonArr.concat(ply);
+                        pointArr = pointArr.concat(ply.getPath()); // 获取BMap.Point[]
+
+                        ply.addEventListener('click', (v: BMap.Polygon) => {
+                            // @ts-ignore
+                            const { x: left, y: top } = v?.pixel
+                            if (detailInfo['尼泊尔'])
+                                setCurrentArea(areas => {
+                                    let data = { ...areas }
+                                    data['尼泊尔'] = { left, top, visible: true }
+                                    return data
+                                })
+                        })
+                    })
+
+                    polygonArr.map((o) => map.addOverlay(o)); // 添加覆盖物
+
+                    return () => {
+                        polygonArr.map(o => map.removeOverlay(o))
+                    }
+                }
+            }).catch(() => {
+                // 没有边界
+                const markers = traveledPoint.map(({ name, lng, lat }) => {
+                    const point = new BMap.Point(lng, lat)
+                    const marker = new BMap.Marker(point)
+                    pointArr = pointArr.concat([point])
+                    marker.addEventListener('click', () => {
+                        const { x: left, y: top } = map.pointToPixel(point)
+                        if (detailInfo[name])
+                            setCurrentArea(areas => {
+                                let data = { ...areas }
+                                data[name] = { left, top, visible: true }
+                                return data
+                            })
+                    })
+                    return marker
+                })
+
+                markers.map(o => map.addOverlay(o))
+
+                return () => {
+                    markers.map(o => map.removeOverlay(o))
+                }
+            })
+
+        // 国内
         traveled.forEach((name, index) => {
             bdary.get(name, (rs) => {
                 if (!name) return
@@ -84,32 +147,12 @@ export default function () {
                     mapServiceAreaFuncRef.current = () => map.setViewport(pointArr); // 调整视野
                     centerAndZoomMap()
                 }
+
+                return () => {
+                    polygonArr.map(o => map.removeOverlay(o))
+                }
             })
         })
-
-        // 没有边界的地点
-        // 尼泊尔
-        const markers = traveledPoint.map(({ name, lng, lat }) => {
-            const point = new BMap.Point(lng, lat)
-            const marker = new BMap.Marker(point)
-            pointArr = pointArr.concat([point])
-            marker.addEventListener('click', () => {
-                const { x: left, y: top } = map.pointToPixel(point)
-                if (detailInfo[name])
-                    setCurrentArea(areas => {
-                        let data = { ...areas }
-                        data[name] = { left, top, visible: true }
-                        return data
-                    })
-            })
-            return marker
-        })
-
-        markers.map(o => map.addOverlay(o))
-
-        return () => {
-            markers.map(o => map.removeOverlay(o))
-        }
     }, [map])
 
     return <>
