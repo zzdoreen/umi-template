@@ -9,7 +9,20 @@ export interface IDataEntity {
 }
 
 const data2024: IDataEntity = {
-    '2024-9': {
+    '2024-10': {
+        income: 1129,
+        expenditure: {
+            total: 6462.4,
+            '食物': 523.2,
+            '外卖': 250,
+            '日用': 624,
+            '旅行': 3051.2,
+            '交通': 45,
+            '房租': 1900,
+            '网购': 69,
+        }
+    },
+     '2024-9': {
         income: 15837,
         expenditure: {
             total: 11473.8,
