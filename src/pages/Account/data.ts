@@ -10,7 +10,7 @@ export interface IDataEntity {
 
 const data2024: IDataEntity = {
     '2024-10': {
-        income: 1129,
+        income: 11219,
         expenditure: {
             total: 6462.4,
             '食物': 523.2,
