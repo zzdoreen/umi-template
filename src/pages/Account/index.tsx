@@ -1,14 +1,15 @@
 import { Badge, Calendar, CalendarProps } from "antd";
 import moment, { Moment } from "moment";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { data } from "./data";
 import echarts from "@/components/Common/echarts";
 import { Space } from "antd";
+import { useModel } from "@umijs/max";
 
 export default function () {
     const [month, setMonth] = useState<number>(1)
     const [date, setDate] = useState<Moment>(moment())
     const dataRef = useRef<HTMLDivElement>(null)
+    const data = useModel('@@initialState', ({ initialState }) => initialState?.data)
 
     const { source, expenditures, incomes, totalSurplus, totalIncome, totalExpenditures } = useMemo(() => {
         const isCurrentYear = date.get('year') === moment().get('year')

@@ -1,6 +1,4 @@
 import { AxiosResponse, RequestConfig, RequestInterceptor, ResponseInterceptor } from "@umijs/max";
-import { Role } from "./access";
-import { Footer, Header } from "./components/Layout";
 import { message, notification } from "antd";
 import { getLocalStorage, setLocalStorage } from "./utils/tools";
 import { history } from "@umijs/max";
@@ -10,12 +8,13 @@ import queryString from "query-string";
 
 // 全局初始化数据配置，用于 Layout 用户信息和权限初始化
 // 更多信息见文档：https://umijs.org/docs/api/runtime-config#getinitialstate
-export async function getInitialState(): Promise<{ name: string, role: Role }> {
+export async function getInitialState() {
   setLocalStorage('token', '-')
 
-  const init = await fetch(`./role/${['admin', 'user'][Math.round(Math.random())]}.json`).then(res => res.json()).then(a => a)
-  // console.log(init)
-  return init
+  const data = await fetch(`./datas/account-data.json`).then(res => res.json()).then(a => a)
+  const travelData = await fetch('./datas/travel-data.json').then(res => res.json()).then(a => a)
+
+  return { data, travelData }
 }
 
 // 优先级高于 config.ts 的layout
@@ -28,12 +27,9 @@ export const layout = () => {
     menu: {
       locale: false,
     },
-    headerRender: () => <>header render</>,
-    // headerTitleRender: () =><>?</>,
-    menuHeaderRender: () => <Header />, // 左侧导航的header
-    rightContentRender: () => <>rightContentRender</>,
+    headerRender: () => <>📕🏔</>,
+    menuHeaderRender: () => <>😁😁😁😁😁😁😁😁😁😁😁😁😁</>, // 左侧导航的header
     footerRender: () => null,//<Footer />,
-    menuExtraRender: () => <>menuExtraRender</>,
     contentStyle: {
       padding: 0,
       height: 'calc(100vh - 56px)'

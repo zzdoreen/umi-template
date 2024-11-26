@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Button, Popover } from "antd"
-import { detailInfo, traveled, traveledPoint } from './data'
+// import { detailInfo, traveled, traveledPoint } from './data'
 import { CloseCircleOutlined } from "@ant-design/icons"
 import { CostStatisticPie, MapTools } from "./components"
 import './index.less'
+import { useModel } from "@umijs/max"
 
 type MapCenterFunc = () => void
 
 export default function () {
+    const { detailInfo, traveled, traveledPoint } = useModel('@@initialState', ({ initialState }) => initialState?.travelData)
     const mapRef = useRef<HTMLDivElement>(null)
     const [map, setMap] = useState<BMap.Map>()
     const [currentArea, setCurrentArea] = useState<{ [key: string]: { left: number, top: number, visible: boolean } }>({})

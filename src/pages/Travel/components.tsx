@@ -2,6 +2,7 @@ import echarts, { useEchartsAutoResize, useEchartsInit } from "@/components/Comm
 import { Modal, Tooltip } from "antd";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { detailInfo } from "./data";
+import { useModel } from "@umijs/max";
 
 
 export const CostStatisticPie = (info: { [key: string]: number }) => {
@@ -68,6 +69,7 @@ export const MapTools = ({ map, centerAndZoomMap }: { map: BMap.Map, centerAndZo
 
 
 const TotalStatisticModal = ({ visible, setVisible }: { visible: boolean, setVisible: (v: boolean) => void }) => {
+    const { detailInfo } = useModel('@@initialState', ({ initialState }) => initialState?.travelData)
     const chartsRef = useRef<HTMLDivElement>(null)
 
     let currKeys: string[] = []
