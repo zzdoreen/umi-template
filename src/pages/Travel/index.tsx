@@ -5,6 +5,8 @@ import { CloseCircleOutlined } from "@ant-design/icons"
 import { CostStatisticPie, MapTools } from "./components"
 import './index.less'
 import { useModel } from "@umijs/max"
+import { GeoJSONObject } from "@/services/entities"
+import { number } from "echarts"
 
 type MapCenterFunc = () => void
 
@@ -47,66 +49,61 @@ export default function () {
         const bdary = new BMap.Boundary()
         let pointArr: any[] = [];
 
-        // 尼泊尔
-        fetch('./geojson/nepal-states.geojson')
-            .then(res => res?.json())
-            .then(({ features }) => {
-                if (Array.isArray(features) && features?.length) {
-                    let polygonArr: any[] = [];
-                    features.forEach(({ geometry: { coordinates = [] } = {} }) => {
-                        const points = coordinates?.map(([lng, lat]: [number, number]) => new BMap.Point(lng, lat))
-                        const ply = new BMap.Polygon(points, {
-                            strokeWeight: 2,
-                            strokeStyle: "dashed",
-                            strokeColor: "#0000ff",
-                            strokeOpacity: 0.6,
-                            fillColor: 'rgba(200,100,55,0.7)'
+        // 国外
+        traveledPoint.map((info: { name: string, lng: number, lat: number }) => {
+            fetch(`./geojson/${info?.name}.geojson`).then(res => res?.json())
+                .then((data) => {
+                    // displayGeoJSON(data, map)
+                    /* if (Array.isArray(features) && features?.length) {
+                        let polygonArr: any[] = [];
+                        features.forEach(({ geometry: { coordinates = [] } = {} }) => {
+                            const points = coordinates?.map(([lng, lat]: [number, number]) => new BMap.Point(lng, lat))
+                            const ply = new BMap.Polygon(points, {
+                                strokeWeight: 2,
+                                strokeStyle: "dashed",
+                                strokeColor: "transparents",
+                                fillColor: 'rgba(200,100,55,0.7)'
+                            })
+                            polygonArr = polygonArr.concat(ply);
+                            pointArr = pointArr.concat(ply.getPath()); // 获取BMap.Point[]
+
+                            ply.addEventListener('click', (v: BMap.Polygon) => {
+                                // @ts-ignore
+                                const { x: left, y: top } = v?.pixel
+                                if (detailInfo[info?.name])
+                                    setCurrentArea(areas => {
+                                        let data = { ...areas }
+                                        data[info?.name] = { left, top, visible: true }
+                                        return data
+                                    })
+                            })
                         })
-                        polygonArr = polygonArr.concat(ply);
-                        pointArr = pointArr.concat(ply.getPath()); // 获取BMap.Point[]
 
-                        ply.addEventListener('click', (v: BMap.Polygon) => {
-                            // @ts-ignore
-                            const { x: left, y: top } = v?.pixel
-                            if (detailInfo['尼泊尔'])
-                                setCurrentArea(areas => {
-                                    let data = { ...areas }
-                                    data['尼泊尔'] = { left, top, visible: true }
-                                    return data
-                                })
-                        })
-                    })
+                        polygonArr.map((o) => map.addOverlay(o)); // 添加覆盖物
 
-                    polygonArr.map((o) => map.addOverlay(o)); // 添加覆盖物
-
-                    return () => {
-                        polygonArr.map(o => map.removeOverlay(o))
-                    }
-                }
-            }).catch(() => {
-                // 没有边界
-                const markers = traveledPoint.map(({ name, lng, lat }) => {
-                    const point = new BMap.Point(lng, lat)
+                        return () => {
+                            polygonArr.map(o => map.removeOverlay(o))
+                        }
+                    } */
+                }).catch(() => {
+                    // 没有边界
+                    const point = new BMap.Point(info?.lng, info?.lat)
                     const marker = new BMap.Marker(point)
                     pointArr = pointArr.concat([point])
                     marker.addEventListener('click', () => {
                         const { x: left, y: top } = map.pointToPixel(point)
-                        if (detailInfo[name])
+                        if (detailInfo[info?.name])
                             setCurrentArea(areas => {
                                 let data = { ...areas }
-                                data[name] = { left, top, visible: true }
+                                data[info?.name] = { left, top, visible: true }
                                 return data
                             })
                     })
-                    return marker
+                    map.addOverlay(marker)
+                    return () => { map.removeOverlay(marker) }
                 })
+        })
 
-                markers.map(o => map.addOverlay(o))
-
-                return () => {
-                    markers.map(o => map.removeOverlay(o))
-                }
-            })
 
         // 国内
         traveled.forEach((name, index) => {
@@ -191,4 +188,62 @@ export default function () {
             })
         }
     </>
+}
+
+
+// 定义一个处理GeoJSON数据并显示在地图上的函数
+function displayGeoJSON(geoJsonData: GeoJSONObject, map: BMap.Map) {
+    if (!geoJsonData || !geoJsonData.features) {
+        console.error("无效的GeoJSON数据");
+        return;
+    }
+    geoJsonData.features.forEach(function (feature) {
+        let geometry = feature.geometry;
+        let coordinates: number[] = [];
+        let type = geometry.type;
+        if (type === "Point") {
+            coordinates = [geometry.coordinates[1] as number, geometry.coordinates[0] as number];  // [lat, lng]
+            let point = new BMap.Point(coordinates[0], coordinates[1]);
+            let marker = new BMap.Marker(point);
+            map.addOverlay(marker);
+        } else if (type === "LineString") {
+            coordinates = geometry.coordinates.map(function (coord) {
+                return new BMap.Point(coord[0], coord[1]);
+            });
+            let polyline = new BMap.Polyline(coordinates, { strokeColor: "blue", strokeWeight: 2, strokeOpacity: 0.5 });
+            map.addOverlay(polyline);
+        } else if (type === "Polygon") {
+            coordinates = geometry.coordinates[0].map(function (coord) {
+                return new BMap.Point(coord[0], coord[1]);
+            });
+            let polygon = new BMap.Polygon(coordinates, { strokeColor: "transparent", strokeWeight: 0, strokeOpacity: 0, fillColor: "rgba(0, 0, 255, 0.1)", fillOpacity: 0.5 });
+            map.addOverlay(polygon);
+        } else if (type === "MultiPoint") {
+            coordinates = geometry.coordinates.map(function (coord) {
+                return new BMap.Point(coord[0], coord[1]);
+            });
+            coordinates.forEach(function (coord) {
+                let marker = new BMap.Marker(coord);
+                map.addOverlay(marker);
+            });
+        } else if (type === "MultiLineString") {
+            geometry.coordinates.forEach(function (line) {
+                let lineCoordinates = line.map(function (coord) {
+                    return new BMap.Point(coord[0], coord[1]);
+                });
+                let polyline = new BMap.Polyline(lineCoordinates, { strokeColor: "blue", strokeWeight: 2, strokeOpacity: 0.5 });
+                map.addOverlay(polyline);
+            });
+        } else if (type === "MultiPolygon") {
+            geometry.coordinates.forEach(function (polygon) {
+                let polygonCoordinates = polygon[0].map(function (coord) {
+                    return new BMap.Point(coord[0], coord[1]);
+                });
+                let poly = new BMap.Polygon(polygonCoordinates, { strokeColor: "transparent", strokeWeight: 0, strokeOpacity: 0, fillColor: "rgba(0, 0, 255, 0.1)", fillOpacity: 0.5 });
+                map.addOverlay(poly);
+            });
+        } else {
+            console.warn("不支持的GeoJSON几何类型: " + type);
+        }
+    })
 }
