@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Button, Popover } from "antd"
-// import { detailInfo, traveled, traveledPoint } from './data'
 import { CloseCircleOutlined } from "@ant-design/icons"
 import { CostStatisticPie, MapTools } from "./components"
-import './index.less'
 import { useModel } from "@umijs/max"
 import { GeoJSONObject } from "@/services/entities"
-import { number } from "echarts"
+import './index.less'
 
 type MapCenterFunc = () => void
 
@@ -53,38 +51,24 @@ export default function () {
         traveledPoint.map((info: { name: string, lng: number, lat: number }) => {
             fetch(`./geojson/${info?.name}.geojson`).then(res => res?.json())
                 .then((data) => {
-                    // displayGeoJSON(data, map)
-                    /* if (Array.isArray(features) && features?.length) {
-                        let polygonArr: any[] = [];
-                        features.forEach(({ geometry: { coordinates = [] } = {} }) => {
-                            const points = coordinates?.map(([lng, lat]: [number, number]) => new BMap.Point(lng, lat))
-                            const ply = new BMap.Polygon(points, {
-                                strokeWeight: 2,
-                                strokeStyle: "dashed",
-                                strokeColor: "transparents",
-                                fillColor: 'rgba(200,100,55,0.7)'
-                            })
-                            polygonArr = polygonArr.concat(ply);
-                            pointArr = pointArr.concat(ply.getPath()); // 获取BMap.Point[]
-
-                            ply.addEventListener('click', (v: BMap.Polygon) => {
-                                // @ts-ignore
-                                const { x: left, y: top } = v?.pixel
-                                if (detailInfo[info?.name])
-                                    setCurrentArea(areas => {
-                                        let data = { ...areas }
-                                        data[info?.name] = { left, top, visible: true }
-                                        return data
-                                    })
-                            })
+                    const overlays = displayGeoJSON(data)
+                    overlays.map(v => {
+                        v.addEventListener('click', (v: BMap.Polygon) => {
+                            // @ts-ignore
+                            const { x: left, y: top } = v?.pixel
+                            if (detailInfo[info?.name])
+                                setCurrentArea(areas => {
+                                    let data = { ...areas }
+                                    data[info?.name] = { left, top, visible: true }
+                                    return data
+                                })
                         })
+                        return map.addOverlay(v)
+                    })
 
-                        polygonArr.map((o) => map.addOverlay(o)); // 添加覆盖物
-
-                        return () => {
-                            polygonArr.map(o => map.removeOverlay(o))
-                        }
-                    } */
+                    return () => {
+                        overlays?.map(v => map.removeOverlay(v))
+                    }
                 }).catch(() => {
                     // 没有边界
                     const point = new BMap.Point(info?.lng, info?.lat)
@@ -106,7 +90,7 @@ export default function () {
 
 
         // 国内
-        traveled.forEach((name, index) => {
+        traveled.forEach((name: string, index: number) => {
             bdary.get(name, (rs) => {
                 if (!name) return
                 const count = (rs as unknown as { boundaries: string[] }).boundaries.length;
@@ -192,11 +176,12 @@ export default function () {
 
 
 // 定义一个处理GeoJSON数据并显示在地图上的函数
-function displayGeoJSON(geoJsonData: GeoJSONObject, map: BMap.Map) {
+function displayGeoJSON(geoJsonData: GeoJSONObject) {
     if (!geoJsonData || !geoJsonData.features) {
         console.error("无效的GeoJSON数据");
-        return;
+        return [];
     }
+    let result: any[] = []
     geoJsonData.features.forEach(function (feature) {
         let geometry = feature.geometry;
         let coordinates: number[] = [];
@@ -205,26 +190,26 @@ function displayGeoJSON(geoJsonData: GeoJSONObject, map: BMap.Map) {
             coordinates = [geometry.coordinates[1] as number, geometry.coordinates[0] as number];  // [lat, lng]
             let point = new BMap.Point(coordinates[0], coordinates[1]);
             let marker = new BMap.Marker(point);
-            map.addOverlay(marker);
+            result = result.concat(marker)
         } else if (type === "LineString") {
             coordinates = geometry.coordinates.map(function (coord) {
                 return new BMap.Point(coord[0], coord[1]);
             });
             let polyline = new BMap.Polyline(coordinates, { strokeColor: "blue", strokeWeight: 2, strokeOpacity: 0.5 });
-            map.addOverlay(polyline);
+            result = result.concat(polyline)
         } else if (type === "Polygon") {
             coordinates = geometry.coordinates[0].map(function (coord) {
                 return new BMap.Point(coord[0], coord[1]);
             });
             let polygon = new BMap.Polygon(coordinates, { strokeColor: "transparent", strokeWeight: 0, strokeOpacity: 0, fillColor: "rgba(0, 0, 255, 0.1)", fillOpacity: 0.5 });
-            map.addOverlay(polygon);
+            result = result.concat(polygon)
         } else if (type === "MultiPoint") {
             coordinates = geometry.coordinates.map(function (coord) {
                 return new BMap.Point(coord[0], coord[1]);
             });
             coordinates.forEach(function (coord) {
                 let marker = new BMap.Marker(coord);
-                map.addOverlay(marker);
+                result = result.concat(marker)
             });
         } else if (type === "MultiLineString") {
             geometry.coordinates.forEach(function (line) {
@@ -232,18 +217,25 @@ function displayGeoJSON(geoJsonData: GeoJSONObject, map: BMap.Map) {
                     return new BMap.Point(coord[0], coord[1]);
                 });
                 let polyline = new BMap.Polyline(lineCoordinates, { strokeColor: "blue", strokeWeight: 2, strokeOpacity: 0.5 });
-                map.addOverlay(polyline);
+                result = result.concat(polyline)
             });
         } else if (type === "MultiPolygon") {
-            geometry.coordinates.forEach(function (polygon) {
-                let polygonCoordinates = polygon[0].map(function (coord) {
-                    return new BMap.Point(coord[0], coord[1]);
-                });
-                let poly = new BMap.Polygon(polygonCoordinates, { strokeColor: "transparent", strokeWeight: 0, strokeOpacity: 0, fillColor: "rgba(0, 0, 255, 0.1)", fillOpacity: 0.5 });
-                map.addOverlay(poly);
+
+            let polygonCoordinates = geometry.coordinates.map(function (coord) {
+                return new BMap.Point(coord[0], coord[1]);
             });
+            let poly = new BMap.Polygon(polygonCoordinates, {
+                strokeWeight: 2,
+                strokeStyle: "dashed",
+                strokeColor: "transparents",
+                fillColor: 'rgba(200,100,55,0.7)'
+            });
+            result = result.concat(poly)
+
         } else {
             console.warn("不支持的GeoJSON几何类型: " + type);
         }
     })
+
+    return result
 }
