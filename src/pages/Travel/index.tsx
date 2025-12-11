@@ -46,26 +46,26 @@ export default function () {
         if (!map) return
         const bdary = new BMap.Boundary()
         let pointArr: any[] = [];
-
         // 国外
         traveledPoint.map((info: { name: string, lng: number, lat: number }) => {
             fetch(`./geojson/${info?.name}.geojson`).then(res => res?.json())
                 .then((data) => {
                     const overlays = displayGeoJSON(data)
                     overlays.map(v => {
-                        v.addEventListener('click', (v: BMap.Polygon) => {
-                            // @ts-ignore
-                            const { x: left, y: top } = v?.pixel
-                            if (detailInfo[info?.name])
-                                setCurrentArea(areas => {
-                                    let data = { ...areas }
-                                    data[info?.name] = { left, top, visible: true }
-                                    return data
-                                })
-                        })
+                        pointArr = pointArr.concat(v.getPath())
+                            v.addEventListener('click', (v: BMap.Polygon) => {
+                                // @ts-ignore
+                                const { x: left, y: top } = v?.pixel
+                                if (detailInfo[info?.name])
+                                    setCurrentArea(areas => {
+                                        let data = { ...areas }
+                                        data[info?.name] = { left, top, visible: true }
+                                        return data
+                                    })
+                            })
                         return map.addOverlay(v)
                     })
-
+                    console.log('==', overlays)
                     return () => {
                         overlays?.map(v => map.removeOverlay(v))
                     }
@@ -221,16 +221,49 @@ function displayGeoJSON(geoJsonData: GeoJSONObject) {
             });
         } else if (type === "MultiPolygon") {
 
-            let polygonCoordinates = geometry.coordinates.map(function (coord) {
-                return new BMap.Point(coord[0], coord[1]);
-            });
-            let poly = new BMap.Polygon(polygonCoordinates, {
-                strokeWeight: 2,
-                strokeStyle: "dashed",
-                strokeColor: "transparents",
-                fillColor: 'rgba(200,100,55,0.7)'
-            });
-            result = result.concat(poly)
+            const str = JSON.stringify(geometry.coordinates);
+            const matches = str.match(/^\[*/);
+            const arrLen = matches ? matches[0].length : 0;
+            // 二维数组
+            if (arrLen === 2) {
+                let polygonCoordinates = geometry.coordinates.map(function (coord) {
+                    return new BMap.Point(coord[0], coord[1]);
+                });
+                let poly = new BMap.Polygon(polygonCoordinates, {
+                    strokeWeight: 2,
+                    strokeStyle: "dashed",
+                    strokeColor: "transparents",
+                    fillColor: 'rgba(200,100,55,0.7)'
+                });
+                result = result.concat(poly)
+            }// 四维数组
+            else if (arrLen === 4) {
+                function parseMultiPolygon(geoJsonObj) {
+                    if (geoJsonObj.type !== "MultiPolygon") {
+                        console.error("不是 MultiPolygon 类型");
+                        return;
+                    }
+
+                    const multiPolygons = geoJsonObj.coordinates;
+
+                    multiPolygons.forEach(polygon => {
+                        polygon.forEach(ring => {
+                            let plyCoordinates = ring.map(coord => new BMap.Point(coord[0], coord[1]))
+                            let poly = new BMap.Polygon(plyCoordinates, {
+                                strokeWeight: 2,
+                                strokeStyle: "dashed",
+                                strokeColor: "transparents",
+                                fillColor: 'rgba(200,100,55,0.7)'
+                            });
+                            result = result.concat(poly)
+                        });
+                    });
+                }
+
+                parseMultiPolygon(geometry)
+            }
+
+
 
         } else {
             console.warn("不支持的GeoJSON几何类型: " + type);
